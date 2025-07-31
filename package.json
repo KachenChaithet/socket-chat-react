@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "lucide-react": "^0.533.0",
+    "react-icons": "^5.5.0"
+  },
+  "name": "chat-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "build": "npm install --prefix backend && cd frontend && bun install && bun run build && cd ..",
+    "start": "npm run start --prefix backend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
