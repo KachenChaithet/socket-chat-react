@@ -27,17 +27,35 @@ app.use('/api/auth', authRoutes)
 app.use('/api/message', messageRoutes)
 
 if (process.env.NODE_ENV === "production") {
-    const distPath = path.resolve(__dirname, "../frontend/dist");
-    const indexPath = path.resolve(distPath, "index.html");
-    console.log("[PROD] Serving static from:", distPath);
-    console.log("[PROD] Index.html path:", indexPath);
-    app.use(express.static(distPath));
+    let distPath, indexPath;
+    try {
+        distPath = path.resolve(__dirname, "../frontend/dist");
+        indexPath = path.resolve(distPath, "index.html");
+        console.log("[PROD] Serving static from:", distPath);
+        console.log("[PROD] Index.html path:", indexPath);
+    } catch (err) {
+        console.error("[PROD] Error resolving static paths:", err);
+    }
 
-    app.get("*", (req, res) => {
+    try {
+        app.use((req, res, next) => {
+            console.log(`[PROD] Static middleware: ${req.method} ${req.url}`);
+            next();
+        });
+        app.use(express.static(distPath));
+    } catch (err) {
+        console.error("[PROD] Error setting up static middleware:", err);
+    }
+
+    // Use regex to match all routes except those containing a dot (static assets)
+    app.get(/^((?!\.).)*$/, (req, res) => {
+        console.log(`[PROD] Fallback route: ${req.method} ${req.url}`);
         res.sendFile(indexPath, (err) => {
             if (err) {
                 console.error("[PROD] Failed to send index.html:", err);
                 res.status(500).send("Error loading app");
+            } else {
+                console.log("[PROD] Sent index.html successfully");
             }
         });
     });
